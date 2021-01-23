@@ -11,7 +11,7 @@ namespace LuxuriaBot.Services
     {
         // --- Begin Configuration Section ---
         // How long should we wait on the client to reconnect before resetting?
-        static readonly TimeSpan Timeout = TimeSpan.FromSeconds(5);
+        static readonly TimeSpan Timeout = TimeSpan.FromSeconds(15);
 
         // Should we attempt to reset the client? Set this to false if your client is still locking up.
         const bool AttemptReset = true;
@@ -95,10 +95,10 @@ namespace LuxuriaBot.Services
         // Logging Helpers
         const string LogSource = "Reliability";
         Task DebugAsync(string message)
-            => _logger.LogAsync(new LogMessage(Debug, LogSource, message));
+            => _logger.Log(new LogMessage(Debug, LogSource, message));
         Task InfoAsync(string message)
-            => _logger.LogAsync(new LogMessage(Info, LogSource, message));
+            => _logger.Log(new LogMessage(Info, LogSource, message));
         Task CriticalAsync(string message, Exception error = null)
-            => _logger.LogAsync(new LogMessage(Critical, LogSource, message, error));
+            => _logger.Log(new LogMessage(Critical, LogSource, message, error));
     }
 }

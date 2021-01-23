@@ -28,7 +28,7 @@ namespace LuxuriaBot.Services
 
         Task Initialize()
         {
-            SetUserWatcherChannel(_config.Config["UserWatcherChannel"]);
+            SetUserWatcherChannel(Convert.ToUInt64(_config.Config["UserWatcherChannel"]));
             _newUserMessage = _config.Config["NewUserMessage"];
             _userLeftMessage = _config.Config["UserLeftMessage"];
 
@@ -38,41 +38,42 @@ namespace LuxuriaBot.Services
         async Task OnUserJoined(SocketGuildUser user)
         {
             if (_userWatcherChannel != null)
-                await SendMessage(_newUserMessage, user.Id.ToString());
-            else
-                await Task.CompletedTask;
+                await SendMessage(_newUserMessage, user.Id.ToString()).ConfigureAwait(false);
         }
 
         async Task OnUserLeft(SocketGuildUser user)
         {
             if (_userWatcherChannel != null)
-                await SendMessage(_userLeftMessage, user.Id.ToString());
-            else
-                await Task.CompletedTask;
+                await SendMessage(_userLeftMessage, user.Id.ToString()).ConfigureAwait(false);
         }
 
-        async Task SendMessage(string message, string userID) 
-            => await _userWatcherChannel?.SendMessageAsync(message.Replace("user",$"<@{userID}>"));
+        async Task SendMessage(string message, string userID)
+        {
+            message = message.Replace("user", $"<@{userID}>");
 
-        void SetUserWatcherChannel(string id) 
+            await _userWatcherChannel?.SendMessageAsync(message);
+        }
+
+
+        void SetUserWatcherChannel(ulong id) 
             => _userWatcherChannel = _client.GetChannel(Convert.ToUInt64(id)) as SocketTextChannel;
 
-        public void UpdateChannel(string id)
+        public async Task UpdateChannel(ulong id)
         {
             SetUserWatcherChannel(id);
-            _config.UpdateUserWatcherChannel(id);
+            await _config.UpdateUserWatcherChannel(id).ConfigureAwait(false);
         }
 
-        public void UpdateNewUserMessage(string text)
+        public async Task UpdateNewUserMessage(string text)
         {
             _newUserMessage = text;
-            _config.UpdateUserWatcherNewUserMessage(text);
+            await _config.UpdateUserWatcherNewUserMessage(text).ConfigureAwait(false);
         }
 
-        public void UpdateUserLeftMessage(string text)
+        public async Task UpdateUserLeftMessage(string text)
         {
             _userLeftMessage = text;
-            _config.UpdateUserWatcherUserLeftMessage(text);
+            await _config.UpdateUserWatcherUserLeftMessage(text).ConfigureAwait(false);
         }
     }
 }

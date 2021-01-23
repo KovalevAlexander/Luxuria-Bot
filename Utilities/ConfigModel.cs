@@ -11,13 +11,13 @@ namespace LuxuriaBot.Utilities
         [JsonInclude]
         public string ActivityName { get; set; } = "Lewding";
         [JsonInclude]
-        public string UserWatcherChannel { get; set; } = "";
+        public ulong UserWatcherChannel { get; set; } = 0;
         [JsonInclude]
         public string NewUserMessage { get; set; } = "";
         [JsonInclude]
         public string UserLeftMessage { get; set; } = "";
         [JsonInclude]
-        public string DisboardReminderChannel { get; set; } = "";
+        public ulong DisboardReminderChannel { get; set; } = 0;
         [JsonInclude]
         public string DisboardReminderMessage { get; set; } = "";
     }

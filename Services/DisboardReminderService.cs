@@ -28,12 +28,12 @@ namespace LuxuriaBot.Services
             _client.Ready += Initialize;
         }
 
-        Task Initialize()
+        async Task Initialize()
         {
-            SetDisboardReminderChannel(_config.Config["DisboardReminderChannel"]);
+            SetDisboardReminderChannel(Convert.ToUInt32(_config.Config["DisboardReminderChannel"]));
             _reminderMessage = _config.Config["DisboardReminderMessage"];
 
-            return Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
         }
 
         public async Task StartTimer()
@@ -41,42 +41,40 @@ namespace LuxuriaBot.Services
             if (_timer == null)
             {
                 _timer = new Timer(IntervalBetweenReminders * 60000) {AutoReset = true};
-                _timer.Elapsed += Remind;
+                _timer.Elapsed += async (s, e) => await Remind(s,e).ConfigureAwait(false);
                 _timer.Start();
-
-                await SendMessage("Luxy will remind everyone to bump every 2 hours from now on!");
+                
+                await SendMessageAsync("Luxy will remind everyone to bump every 2 hours from now on!").ConfigureAwait(false);
             }
-            await Task.CompletedTask;
         }
 
-        public async void Remind(object source, ElapsedEventArgs e) 
-            => await SendMessage(_reminderMessage);
+        public async Task Remind(object source, ElapsedEventArgs e) 
+            => await SendMessageAsync(_reminderMessage).ConfigureAwait(false);
 
         public async Task StopTimer()
         {
             if (_timer == null)
-                await Task.CompletedTask;
+                await Task.CompletedTask.ConfigureAwait(false);
 
-            _timer.Elapsed -= Remind;
             _timer = null;
         }
 
-        public void UpdateChannel(string id)
+        public async Task UpdateChannel(ulong id)
         {
             SetDisboardReminderChannel(id);
-            _config.UpdateDisboardReminderChannel(id);
+            await _config.UpdateDisboardReminderChannel(id).ConfigureAwait(false);
         }
 
-        public void UpdateReminderMessage(string message)
+        public async Task UpdateReminderMessage(string message)
         {
             _reminderMessage = message;
-            _config.UpdateDisboardReminderMessage(message);
+            await _config.UpdateDisboardReminderMessage(message).ConfigureAwait(false);
         }
 
-        async Task SendMessage(string message) 
-            => await Channel.SendMessageAsync(message);
+        async Task SendMessageAsync(string message) 
+            => await Channel.SendMessageAsync(message).ConfigureAwait(false);
 
-        void SetDisboardReminderChannel(string id) 
-            => Channel = _client.GetChannel(Convert.ToUInt64(id)) as SocketTextChannel;
+        void SetDisboardReminderChannel(ulong id) 
+            => Channel = _client.GetChannel(id) as SocketTextChannel;
     }
 }

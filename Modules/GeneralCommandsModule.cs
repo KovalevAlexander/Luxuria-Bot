@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 
 using Discord.Commands;
+
 using LuxuriaBot.Services;
 
 namespace LuxuriaBot.Modules
@@ -13,9 +14,7 @@ namespace LuxuriaBot.Modules
         const string PingMessageFormat = "Hi there, <@{0}>!";
 
         public GeneralCommandsModule(GeneralCommandsService service)
-        {
-            _service = service;
-        }
+            =>_service = service;
 
         [Command("ping")]
         [Alias("hi", "hello")]
@@ -25,14 +24,14 @@ namespace LuxuriaBot.Modules
             var message = new StringBuilder();
             message.AppendFormat(PingMessageFormat, Context.User.Id);
             
-            await ReplyAsync(message.ToString());
+            await ReplyAsync(message.ToString()).ConfigureAwait(false);
         }
 
         [Command("help")]
         [RequireContext(ContextType.Guild)]
         public async Task HelpAsync()
         {
-            await ReplyAsync("", false, await _service.BuildHelpMessageAsync(Context));
+            await ReplyAsync("", false, await _service.BuildHelpMessageAsync(Context).ConfigureAwait(false)).ConfigureAwait(false);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Net.WebSockets;
 using System.Threading.Tasks;
 
 using Discord;
@@ -14,14 +13,14 @@ namespace LuxuriaBot.Services
 
         public LoggingService(DiscordSocketClient client, CommandService command)
         {
-            client.Log += LogAsync;
+            client.Log += Log;
             client.Ready += LogReady;
 
-            command.Log += LogAsync;
-            command.CommandExecuted += LogCommandExecutedAsync;
+            command.Log += Log;
+            command.CommandExecuted += LogCommandExecuted;
         }
 
-        public Task LogAsync(LogMessage message)
+        public Task Log(LogMessage message)
         {
             switch (message.Exception)
             {
@@ -32,21 +31,14 @@ namespace LuxuriaBot.Services
                 case GatewayReconnectException grException:
                     Console.WriteLine($"[{message.Severity}] {CurrentTime} Discord requested to reconnect");
                     break;
-                case System.Exception exception:
-                    if ((uint)exception.HResult == 0x80004005)
-                        Console.WriteLine($"[{message.Severity}] {CurrentTime} Discord closed the connection");
-                    else
-                        Console.WriteLine($"[{message.Severity}] {CurrentTime} Unhandled Exception");
-                    break;
                 default:
                     Console.WriteLine($"[{message.Severity}] {message.ToString()}");
                     break;
             }
-
             return Task.CompletedTask;
         }
 
-        Task LogCommandExecutedAsync(Optional<CommandInfo> command, ICommandContext context, IResult result)
+        Task LogCommandExecuted(Optional<CommandInfo> command, ICommandContext context, IResult result)
         {
             if (!(context.Message is SocketUserMessage)) return Task.CompletedTask;
 

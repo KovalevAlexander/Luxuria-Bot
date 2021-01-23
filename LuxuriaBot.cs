@@ -37,24 +37,24 @@ namespace LuxuriaBot
         {
             Console.Title = "LuxuriaBot";
 
-            await InitializeServices();
+            await InitializeServices().ConfigureAwait(false);
 
-            await _client.LoginAsync(TokenType.Bot, _config["token"]);
-            await _client.StartAsync();
+            await _client.LoginAsync(TokenType.Bot, _config["token"]).ConfigureAwait(false);
+            await _client.StartAsync().ConfigureAwait(false);
 
-            await _client.SetActivityAsync(new BotActivity(_config["NameOfActivity"]));
+            _client.Ready += async () => await _client.SetGameAsync(_config["ActivityName"]).ConfigureAwait(false);
 
-            await Task.Delay(Timeout.Infinite);
+            await Task.Delay(Timeout.Infinite).ConfigureAwait(false);
         }
 
         async Task InitializeServices()
         {
             var services = ConfigureServices();
 
-            _config = await services.GetRequiredService<Configuration>().BuildConfig();
+            _config = await services.GetRequiredService<Configuration>().BuildConfig().ConfigureAwait(false);
             _client = services.GetRequiredService<DiscordSocketClient>();
             _cmdHandler = services.GetRequiredService<CommandHandlerService>();
-            await _cmdHandler.InitializeAsync();
+            await _cmdHandler.InitializeAsync().ConfigureAwait(false);
 
             _logger = services.GetRequiredService<LoggingService>();
             _reliabilityService = services.GetRequiredService<ReliabilityService>();

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
+
 using Discord;
 using Discord.Commands;
 
@@ -13,9 +11,7 @@ namespace LuxuriaBot.Services
         readonly CommandService _service;
 
         public GeneralCommandsService(CommandService service)
-        {
-            _service = service;
-        }
+            => _service = service;
 
         public async Task<Embed> BuildHelpMessageAsync(ICommandContext context)
         {

@@ -29,7 +29,7 @@ namespace LuxuriaBot.Services
         }
 
         public async Task InitializeAsync() 
-            => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
+            => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider).ConfigureAwait(false);
 
         async Task HandleCommandAsync(SocketMessage messageParam)
         {
@@ -45,7 +45,7 @@ namespace LuxuriaBot.Services
             await _commands.ExecuteAsync(
                 context,
                 argPos,
-                _provider);
+                _provider).ConfigureAwait(false);
         }
     }
 }

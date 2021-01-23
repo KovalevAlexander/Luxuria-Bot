@@ -22,12 +22,10 @@ namespace LuxuriaBot.Modules
             if (id == 0)
                 id = Context.Channel.Id;
 
-            _service.UpdateChannel(id.ToString());
+            await _service.UpdateChannel(id).ConfigureAwait(false);
 
 
-            await ReplyAsync($"New UserWatcher Channel is <#{id}>");
-
-            await Task.CompletedTask;
+            await ReplyAsync($"New UserWatcher Channel is <#{id}>").ConfigureAwait(false);
         }
 
         [Command("setNewUserMessage")]
@@ -37,10 +35,11 @@ namespace LuxuriaBot.Modules
         public async Task SetNewUserMessage(string text)
         {
             if (text == null)
-                await Task.CompletedTask;
+                await Task.CompletedTask.ConfigureAwait(false);
 
-            _service.UpdateNewUserMessage(text);
-            await ReplyAsync($"Now its set as:\n{text}");
+            await _service.UpdateNewUserMessage(text).ConfigureAwait(false);
+
+            await ReplyAsync($"Now its set as:\n{text}").ConfigureAwait(false);
         }
 
         [Command("setUserLeftMessage")]
@@ -50,10 +49,11 @@ namespace LuxuriaBot.Modules
         public async Task SetUserLeftMessage(string text)
         {
             if (text == null)
-                await Task.CompletedTask;
+                await Task.CompletedTask.ConfigureAwait(false);
 
-            _service.UpdateUserLeftMessage(text);
-            await ReplyAsync($"Now its set as:\n{text}");
+            await _service.UpdateUserLeftMessage(text).ConfigureAwait(false);
+
+            await ReplyAsync($"Now its set as:\n{text}").ConfigureAwait(false);
         }
     }
 }

@@ -17,10 +17,7 @@ namespace LuxuriaBot.Modules
         public async Task StartTimer()
         {
             if (Context.Channel.Id == _service.Channel.Id)
-            {
-                await _service.StartTimer();
-            }
-            await Task.CompletedTask;
+                await _service.StartTimer().ConfigureAwait(false);
         }
 
         [Command("setBumpChannel")]
@@ -31,12 +28,9 @@ namespace LuxuriaBot.Modules
             if (id == 0)
                 id = Context.Channel.Id;
 
-            _service.UpdateChannel(id.ToString());
+            await _service.UpdateChannel(id).ConfigureAwait(false);
 
-
-            await ReplyAsync($"New bump channel is <#{id}>");
-
-            await Task.CompletedTask;
+            await ReplyAsync($"New bump channel is <#{id}>").ConfigureAwait(false);
         }
 
         [Command("stopDisboardTimer")]
@@ -44,11 +38,9 @@ namespace LuxuriaBot.Modules
         [RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task StopTimer()
         {
-            await _service.StopTimer();
+            await _service.StopTimer().ConfigureAwait(false);
 
-            await ReplyAsync($"The timer has been stopped!");
-
-            await Task.CompletedTask;
+            await ReplyAsync($"The timer has been stopped!").ConfigureAwait(false);
         }
 
         [Command("setDisboardReminderMessage")]
@@ -56,12 +48,12 @@ namespace LuxuriaBot.Modules
         [RequireUserPermission(Discord.GuildPermission.Administrator)]
         public async Task SetNewUserMessage(string text)
         {
-            if (text != null)
-                _service.UpdateReminderMessage(text);
+            if (text == null)
+                await Task.CompletedTask.ConfigureAwait(false);
 
-            await ReplyAsync($"Now its set as:\n{text}");
+            await _service.UpdateReminderMessage(text).ConfigureAwait(false);
 
-            await Task.CompletedTask;
+            await ReplyAsync($"Now its set as:\n{text}").ConfigureAwait(false);
         }
     }
 }

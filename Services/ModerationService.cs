@@ -13,13 +13,13 @@ namespace LuxuriaBot.Services
         public async Task KickAsync(IReadOnlyCollection<SocketUser> users, string reason = null)
         {
             foreach (var user in users)
-                await (user as SocketGuildUser).KickAsync(reason);
+                await (user as SocketGuildUser).KickAsync(reason).ConfigureAwait(false);
         }
 
         public async Task BanAsync(IReadOnlyCollection<SocketUser> users, string reason = null)
         {
             foreach (var user in users)
-                await (user as SocketGuildUser).BanAsync(0, reason);
+                await (user as SocketGuildUser).BanAsync(0, reason).ConfigureAwait(false);
         }
 
         public async Task PurgeAsync(SocketTextChannel channel, uint count)
@@ -27,7 +27,7 @@ namespace LuxuriaBot.Services
             var messages = await channel.GetMessagesAsync((int)count + 1).FlattenAsync();
 
             await channel.DeleteMessagesAsync(
-                messages.Where(x => (DateTimeOffset.UtcNow - x.Timestamp).TotalDays <= 14));
+                messages.Where(x => (DateTimeOffset.UtcNow - x.Timestamp).TotalDays <= 14)).ConfigureAwait(false);
         }
     }
 }
