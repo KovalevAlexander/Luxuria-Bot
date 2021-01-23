@@ -30,7 +30,7 @@ namespace LuxuriaBot.Services
 
         async Task Initialize()
         {
-            SetDisboardReminderChannel(Convert.ToUInt32(_config.Config["DisboardReminderChannel"]));
+            SetDisboardReminderChannel(Convert.ToUInt64(_config.Config["DisboardReminderChannel"]));
             _reminderMessage = _config.Config["DisboardReminderMessage"];
 
             await Task.CompletedTask.ConfigureAwait(false);
