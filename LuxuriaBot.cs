@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using Discord;
@@ -16,6 +17,19 @@ namespace LuxuriaBot
 {
     internal class LuxuriaBot
     {
+
+        DiscordSocketClient _client;
+        IConfiguration _config;
+        CommandHandlerService _cmdHandler;
+        LoggingService _logger;
+        ReliabilityService _reliabilityService;
+
+        readonly DiscordSocketConfig _socketConfig = new DiscordSocketConfig
+        {
+            MessageCacheSize = 100,
+            ExclusiveBulkDelete = true
+        };
+
         static void Main(string[] args)
             => new LuxuriaBot().MainAsync().GetAwaiter().GetResult();
 
@@ -23,35 +37,30 @@ namespace LuxuriaBot
         {
             Console.Title = "LuxuriaBot";
 
-            var clientConfig = new DiscordSocketConfig
-            {
-                MessageCacheSize = 100, 
-                ExclusiveBulkDelete = true
-            };
+            await InitializeServices();
 
-            var services = ConfigureServices(clientConfig);
-            var config = services.GetRequiredService<Configuration>().BuildConfig();
+            await _client.LoginAsync(TokenType.Bot, _config["token"]);
+            await _client.StartAsync();
 
-            var client = services.GetRequiredService<DiscordSocketClient>();
-            await services.GetRequiredService<CommandHandlerService>().InitializeAsync(services);
-
-            InitializeMiscServices(services);
-
-            await client.LoginAsync(TokenType.Bot, config["token"]);
-            await client.StartAsync();
-
-            await client.SetActivityAsync(new BotActivity(config["NameOfActivity"]));
+            await _client.SetActivityAsync(new BotActivity(_config["NameOfActivity"]));
 
             await Task.Delay(Timeout.Infinite);
         }
 
-        void InitializeMiscServices(IServiceProvider service)
+        async Task InitializeServices()
         {
-            service.GetRequiredService<LoggingService>();
-            service.GetRequiredService<ReliabilityService>();
+            var services = ConfigureServices();
+
+            _config = await services.GetRequiredService<Configuration>().BuildConfig();
+            _client = services.GetRequiredService<DiscordSocketClient>();
+            _cmdHandler = services.GetRequiredService<CommandHandlerService>();
+            await _cmdHandler.InitializeAsync();
+
+            _logger = services.GetRequiredService<LoggingService>();
+            _reliabilityService = services.GetRequiredService<ReliabilityService>();
         }
 
-        public IServiceProvider ConfigureServices(DiscordSocketConfig socketConfig)
+        public IServiceProvider ConfigureServices()
         {
             var collection = new ServiceCollection()
                 .AddSingleton<Configuration>()
@@ -60,6 +69,7 @@ namespace LuxuriaBot
                 .AddSingleton<UserWatcherService>()
                 .AddSingleton<UserWatcherModule>()
                 .AddSingleton<LoggingService>()
+                .AddSingleton<GeneralCommandsService>()
                 .AddSingleton<GeneralCommandsModule>()
                 .AddSingleton<DisboardReminderService>()
                 .AddSingleton<DisboardReminderModule>()
@@ -67,7 +77,7 @@ namespace LuxuriaBot
                 .AddSingleton<ModerationModule>()
                 .AddSingleton<ReliabilityService>();
 
-            collection.AddSingleton(delegate { return new DiscordSocketClient(socketConfig); });
+            collection.AddSingleton(delegate { return new DiscordSocketClient(_socketConfig); });
             return collection.BuildServiceProvider();
         }
     }

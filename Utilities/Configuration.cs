@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 using Microsoft.Extensions.Configuration;
 
@@ -13,38 +14,35 @@ namespace LuxuriaBot.Utilities
 
         public IConfiguration Config { get; private set; }
 
-        public IConfiguration BuildConfig()
+        public async Task<IConfiguration> BuildConfig()
         {
             
-            if (File.Exists(_configPath))
+            if (!File.Exists(_configPath))
             {
-                Config = new ConfigurationBuilder()
-                            .SetBasePath(Directory.GetCurrentDirectory())
-                            .AddJsonFile("config.json", false, true)
-                            .Build();
-
-                _model.Token = Config["Token"];
-                _model.CommandPrefix = Config["CommandPrefix"];
-                _model.ActivityName = Config["ActivityName"];
-
-                _model.UserWatcherChannel = Config["UserWatcherChannel"];
-                _model.NewUserMessage = Config["NewUserMessage"];
-                _model.UserLeftMessage = Config["UserLeftMessage"];
-
-                _model.DisboardReminderChannel = Config["DisboardReminderChannel"];
-                _model.DisboardReminderMessage = Config["DisboardReminderMessage"];
-
-                return Config;
+                _model.Token = AskForToken(_configPath);
+                await CreateConfigurationFileAsync(_configPath);
             }
 
-            _model.Token = AskForToken(_configPath);
+            Config = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("config.json", false, true)
+                .Build();
 
-            CreateConfigurationFileAsync(_configPath);
+            _model.Token = Config["Token"];
+            _model.CommandPrefix = Config["CommandPrefix"];
+            _model.ActivityName = Config["ActivityName"];
 
-            return BuildConfig();
+            _model.UserWatcherChannel = Config["UserWatcherChannel"];
+            _model.NewUserMessage = Config["NewUserMessage"];
+            _model.UserLeftMessage = Config["UserLeftMessage"];
+
+            _model.DisboardReminderChannel = Config["DisboardReminderChannel"];
+            _model.DisboardReminderMessage = Config["DisboardReminderMessage"];
+
+            return Config;
         }
 
-        async void CreateConfigurationFileAsync(string path)
+        async Task CreateConfigurationFileAsync(string path)
         {
             await using var stream = File.Create(path);
             await JsonSerializer.SerializeAsync(stream, (object)_model, new JsonSerializerOptions() { WriteIndented = true });
@@ -58,39 +56,39 @@ namespace LuxuriaBot.Utilities
             return Console.ReadLine();
         }
 
-        public void UpdateUserWatcherChannel(string id)
+        public async Task UpdateUserWatcherChannel(string id)
         {
             _model.UserWatcherChannel = id;
 
-            CreateConfigurationFileAsync(_configPath);
+            await CreateConfigurationFileAsync(_configPath);
         }
 
-        public void UpdateUserWatcherNewUserMessage(string text)
+        public async Task UpdateUserWatcherNewUserMessage(string text)
         {
             _model.NewUserMessage = text;
 
-            CreateConfigurationFileAsync(_configPath);
+            await CreateConfigurationFileAsync(_configPath);
         }
 
-        public void UpdateUserWatcherUserLeftMessage(string text)
+        public async Task UpdateUserWatcherUserLeftMessage(string text)
         {
             _model.UserLeftMessage = text;
 
-            CreateConfigurationFileAsync(_configPath);
+            await CreateConfigurationFileAsync(_configPath);
         }
 
-        public void UpdateDisboardReminderChannel(string id)
+        public async Task UpdateDisboardReminderChannel(string id)
         {
             _model.DisboardReminderChannel = id;
 
-            CreateConfigurationFileAsync(_configPath);
+            await CreateConfigurationFileAsync(_configPath);
         }
 
-        public void UpdateDisboardReminderMessage(string text)
+        public async Task UpdateDisboardReminderMessage(string text)
         {
             _model.DisboardReminderMessage = text;
 
-            CreateConfigurationFileAsync(_configPath);
+            await CreateConfigurationFileAsync(_configPath);
         }
     }
 }

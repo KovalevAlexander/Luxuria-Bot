@@ -28,8 +28,8 @@ namespace LuxuriaBot.Services
             _client.MessageReceived += HandleCommandAsync;
         }
 
-        public async Task InitializeAsync(IServiceProvider _provider) 
-            => await _commands.AddModulesAsync(assembly: Assembly.GetEntryAssembly(), services: _provider);
+        public async Task InitializeAsync() 
+            => await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _provider);
 
         async Task HandleCommandAsync(SocketMessage messageParam)
         {
