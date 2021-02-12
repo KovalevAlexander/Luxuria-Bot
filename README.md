@@ -2,7 +2,6 @@
 Bot for Discord written on C# using Discord.Net Framework
 
 Used NuGet Packages:
-
 Discord.Net - 2.3.1-dev-20210210.1 (Nightly)
 Microsoft.Extensions.Configuration - 5.0.0
 Microsoft.Extensions.Configuration.Abstractions - 5.0.0
